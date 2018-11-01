@@ -7,25 +7,32 @@ type Value interface {
 	Set(string) error
 }
 
-type stringVal string
+type StringValue string
 
-func (s *stringVal) Set(val string) error {
-	*s = stringVal(val)
+func (s *StringValue) Set(val string) error {
+	*s = StringValue(val)
 	return nil
 }
 
-type boolVal bool
+type BoolValue bool
 
-func (b *boolVal) Set(_ string) error {
+func (b *BoolValue) Set(_ string) error {
 	*b = true
+	return nil
+}
+
+type CountValue int
+
+func (c *CountValue) Set(_ string) error {
+	*c++
 	return nil
 }
 
 // ErrHelp is the error returned when a help flag is seen.
 var ErrHelp = errors.New("help requested")
 
-type helpVal struct{}
+type HelpValue struct{}
 
-func (b *helpVal) Set(_ string) error {
+func (b *HelpValue) Set(_ string) error {
 	return ErrHelp
 }

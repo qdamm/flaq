@@ -10,21 +10,24 @@ type FlagArg struct {
 	Default string
 }
 
-// StringFlag returns a string flag with specified long/short form and description string.
-// The argument svar points to a string variable in which to store the value of the flag.
-func StringFlag(svar *string, long, short, description string) *Flag {
-	return &Flag{Long: long, Short: short, Description: description, Arg: &FlagArg{}, Value: (*stringVal)(svar)}
+// String returns a string flag with specified long/short form and description string.
+func String(svar *string, long, short, description string) *Flag {
+	return &Flag{Long: long, Short: short, Description: description, Arg: &FlagArg{}, Value: (*StringValue)(svar)}
 }
 
-// BoolFlag returns a bool flag with specified long/short form and description string.
-// The argument bvar points to a bool variable in which to store the value of the flag.
-func BoolFlag(bvar *bool, long, short, description string) *Flag {
-	return &Flag{Long: long, Short: short, Description: description, Value: (*boolVal)(bvar)}
+// Bool returns a bool flag with specified long/short form and description string.
+func Bool(bvar *bool, long, short, description string) *Flag {
+	return &Flag{Long: long, Short: short, Description: description, Value: (*BoolValue)(bvar)}
 }
 
-// HelpFlag returns a help flag with specified long/short form and description string.
-func HelpFlag(long, short, description string) *Flag {
-	return &Flag{Long: long, Short: short, Description: description, Value: new(helpVal)}
+// Help returns a help flag with specified long/short form and description string.
+func Help(long, short, description string) *Flag {
+	return &Flag{Long: long, Short: short, Description: description, Value: new(HelpValue)}
+}
+
+// Count returns a count flag with specified long/short form and description string.
+func Count(cvar *int, long, short, description string) *Flag {
+	return &Flag{Long: long, Short: short, Description: description, Value: (*CountValue)(cvar)}
 }
 
 // Flag is a representation for a command line option.
