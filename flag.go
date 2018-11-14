@@ -39,52 +39,47 @@ type Flag struct {
 	Value       Value
 }
 
-// FlagSetOpt represents a functional option for a FlagSet.
-type FlagSetOpt func(f *FlagSet)
+// ParserOpt represents a functional option for a Parser.
+type ParserOpt func(f *Parser)
 
-// ContinueOnArg indicates that options parsing should continue when an argument (aka. operand) is encountered.
-func ContinueOnArg() FlagSetOpt {
-	return func(f *FlagSet) {
-		f.continueOnArg = true
+// Abbreviations indicates that option abbreviations are supported.
+func Abbreviations() ParserOpt {
+	return func(f *Parser) {
+		f.abbreviations = true
 	}
 }
 
-// FlagSet represents a set of flags.
-type FlagSet struct {
+// Ordered indicates that command-line options are expected before operands.
+// This means that the parsing will stop when an operand is seen.
+func Ordered() ParserOpt {
+	return func(f *Parser) {
+		f.ordered = true
+	}
+}
+
+// NewParser returns a new flag parser.
+func NewParser(args []string, opts ...ParserOpt) *Parser {
+	parser := &Parser{args: args}
+	for _, opt := range opts {
+		opt(parser)
+	}
+	return parser
+}
+
+// Parser is a parser for command-line options.
+type Parser struct {
 	flags         []*Flag
 	seenArgs      []string
 	args          []string
-	continueOnArg bool
-}
-
-// String adds a string flag to the FlagSet.
-func (f *FlagSet) String(svar *string, long, short, description string) {
-	f.Add(StringFlag(svar, long, short, description))
-}
-
-// Bool adds a bool flag to the FlagSet.
-func (f *FlagSet) Bool(bvar *bool, long, short, description string) {
-	f.Add(BoolFlag(bvar, long, short, description))
-}
-
-// Help adds a help flag to the FlagSet.
-func (f *FlagSet) Help(long, short, description string) {
-	f.Add(HelpFlag(long, short, description))
-}
-
-// Add adds a flag to the FlagSet.
-func (f *FlagSet) Add(flag *Flag) {
-	f.flags = append(f.flags, flag)
+	abbreviations bool
+	ordered       bool
 }
 
 // Parse parses flag definitions from the argument list, which should not
 // include the command name. Must be called after all flags in the FlagSet
 // are defined and before flags are accessed by the program.
-func (f *FlagSet) Parse(args []string, opts ...FlagSetOpt) error {
-	for _, opt := range opts {
-		opt(f)
-	}
-	f.args, f.seenArgs = args, nil
+func (f *Parser) Parse(flags ...*Flag) error {
+	f.flags, f.seenArgs = flags, nil
 	for {
 		seen, err := f.parseOne()
 		if seen {
@@ -95,14 +90,14 @@ func (f *FlagSet) Parse(args []string, opts ...FlagSetOpt) error {
 }
 
 // parseOne parses one flag. It reports whether a flag was seen.
-func (f *FlagSet) parseOne() (bool, error) {
+func (f *Parser) parseOne() (bool, error) {
 	if len(f.args) == 0 {
 		return false, nil
 	}
 
 	arg := f.args[0]
 	if len(arg) < 2 || arg[0] != '-' {
-		if f.continueOnArg {
+		if !f.ordered {
 			f.seenArgs, f.args = append(f.seenArgs, arg), f.args[1:]
 			return f.parseOne()
 		}
@@ -120,7 +115,7 @@ func (f *FlagSet) parseOne() (bool, error) {
 }
 
 // parseLong parses a long flag. It reports whether a flag was seen.
-func (f *FlagSet) parseLong(name string) (bool, error) {
+func (f *Parser) parseLong(name string) (bool, error) {
 	var flagArg string
 	var hasFlagArg bool
 
@@ -135,9 +130,11 @@ func (f *FlagSet) parseLong(name string) (bool, error) {
 	var candidates []*Flag
 	for _, flag := range f.flags {
 		if strings.HasPrefix(flag.Long, name) {
-			candidates = append(candidates, flag)
+			if f.abbreviations {
+				candidates = append(candidates, flag)
+			}
 			if len(flag.Long) == len(name) {
-				candidates = candidates[len(candidates)-1:]
+				candidates = append(candidates[:0], flag)
 				break
 			}
 		}
@@ -171,7 +168,7 @@ func (f *FlagSet) parseLong(name string) (bool, error) {
 	return false, fmt.Errorf("multiple options matching --%s", name)
 }
 
-func (f *FlagSet) parseShort(name string) (bool, error) {
+func (f *Parser) parseShort(name string) (bool, error) {
 	for _, flag := range f.flags {
 		switch {
 		case flag.Short != string(name[0]):
@@ -206,7 +203,17 @@ func (f *FlagSet) parseShort(name string) (bool, error) {
 	return false, fmt.Errorf("unknown option -%c", name[0])
 }
 
-// Args returns the non-flag arguments (also known as "operands").
-func (f *FlagSet) Args() []string {
+// Next advances the parser to the next argument, the bool value indicates whether an argument was read.
+func (f *Parser) Next() (string, bool) {
+	if len(f.args) == 0 {
+		return "", false
+	}
+	next := f.args[0]
+	f.args = f.args[1:]
+	return next, true
+}
+
+// Operands returns the operands (the non-option arguments).
+func (f *Parser) Operands() []string {
 	return append(f.seenArgs, f.args...)
 }
