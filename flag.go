@@ -286,6 +286,9 @@ func (f *FlagSet) Parse(args []string) error {
 		}
 		if err == nil {
 			if f.help {
+				// When the default --help flag is encountered, print help usage
+				// to stdout and exit. To change this behaviour, one should set
+				// DisableHelp and implement their own help flag instead.
 				fmt.Print(f.Usage())
 				os.Exit(0)
 			}
