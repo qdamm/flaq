@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/qdamm/flaq.svg?branch=master)](https://travis-ci.org/qdamm/flaq)
 [![GoDoc](https://godoc.org/github.com/qdamm/flaq?status.svg)](https://godoc.org/github.com/qdamm/flaq)
+[![Coverage Status](https://coveralls.io/repos/github/qdamm/flaq/badge.svg?branch=master)](https://coveralls.io/github/qdamm/flaq?branch=master)
 
 flaq is a command-line options parsing library for Go.
 
