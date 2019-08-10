@@ -5,6 +5,12 @@ go:
   - 1.11.x
   - 1.12.x
 
+before_install:
+ - go get -u github.com/mattn/goveralls
+
 script:
  - go vet ./...
  - go test -v -cover ./...
+
+after_success:
+ - goveralls -service travis-ci -repotoken $COVERALLS_TOKEN
