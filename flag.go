@@ -39,6 +39,11 @@ func Int(ivar *int, long, short, description string) {
 	flags.Int(ivar, long, short, description)
 }
 
+// Float64 adds a float64 flag with specified long/short form and description.
+func Float64(fvar *float64, long, short, description string) {
+	flags.Float64(fvar, long, short, description)
+}
+
 // Count adds a count flag with specified long/short form and description.
 func Count(cvar *int, long, short, description string) {
 	flags.Count(cvar, long, short, description)
@@ -180,6 +185,17 @@ func (f *FlagSet) Int(ivar *int, long, short, description string) {
 	})
 }
 
+// Float64 adds a float64 flag with specified long/short form and description.
+func (f *FlagSet) Float64(fvar *float64, long, short, description string) {
+	f.Add(&Flag{
+		Long:        long,
+		Short:       short,
+		Description: description,
+		Value:       (*float64Value)(fvar),
+		Arg:         &FlagArg{Name: "float"},
+	})
+}
+
 // Count adds a count flag with specified long/short form and description.
 func (f *FlagSet) Count(cvar *int, long, short, description string) {
 	f.Add(&Flag{
@@ -240,6 +256,9 @@ func (f *FlagSet) Struct(svar interface{}) {
 		case "duration":
 			flag.Value = (*durationValue)(val.(*time.Duration))
 			flag.Arg = &FlagArg{Name: "duration"}
+		case "float64":
+			flag.Value = (*float64Value)(val.(*float64))
+			flag.Arg = &FlagArg{Name: "float"}
 		case "int":
 			flag.Value = (*intValue)(val.(*int))
 			flag.Arg = &FlagArg{Name: "int"}

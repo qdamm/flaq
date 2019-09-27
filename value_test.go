@@ -49,3 +49,12 @@ func TestDurationValue(t *testing.T) {
 	require.NoError(t, val.Set("5s"))
 	require.Equal(t, 5*time.Second, dvar)
 }
+
+func TestFloat64Value(t *testing.T) {
+	var fvar float64
+	val := (*float64Value)(&fvar)
+
+	require.Error(t, val.Set("invalid"))
+	require.NoError(t, val.Set("3.14159265358979323846264338327950288419716939937510"))
+	require.Equal(t, 3.14159265358979323846264338327950288419716939937510, fvar)
+}

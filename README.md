@@ -123,10 +123,11 @@ Here is a reference of the supported field types:
 
 ```go
 type Options struct {
-	Name     string        `flaq:"-n, --name string         name of the person to greet"`
-	Yell     bool          `flaq:"    --yell                --yell will set the value to true"`
+	String   string        `flaq:"-n, --name string         a string eg. --string=world"`
+	Switch   bool          `flaq:"    --switch              --switch will set the value to true"`
 	Bool     bool          `flaq:"    --bool bool           --bool, --bool=true or --bool=false"`
-	Int      int           `flaq:"    --int int             an int value"`
+	Int      int           `flaq:"    --int int             an int value eg. --int=100"`
+	Float64  float64       `flaq:"    --float64 float64     a float value eg. --float64=3.14159"`
 	Count    int           `flaq:"-c, --count count         -ccc will set this count value to 3"`
 	Duration time.Duration `flaq:"    --duration duration   a duration eg. --duration=5min"`
 }
