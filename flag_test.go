@@ -20,6 +20,7 @@ func TestParse(t *testing.T) {
 		car         bool
 		count       int
 		number      int
+		floatNumber float64
 		duration    time.Duration
 	}{
 		{
@@ -102,6 +103,10 @@ func TestParse(t *testing.T) {
 			number: 50,
 		},
 		{
+			args:        []string{"--float-number=3.14159"},
+			floatNumber: 3.14159,
+		},
+		{
 			args:     []string{"--duration=5m"},
 			duration: time.Duration(5 * time.Minute),
 		},
@@ -112,6 +117,7 @@ func TestParse(t *testing.T) {
 			var car, foo, fooBar bool
 			var bar string
 			var count, number int
+			var floatNumber float64
 			var duration time.Duration
 
 			flags := &FlagSet{}
@@ -121,6 +127,7 @@ func TestParse(t *testing.T) {
 			flags.Bool(&car, "car", "c", "", false)
 			flags.Count(&count, "count", "", "")
 			flags.Int(&number, "number", "", "")
+			flags.Float64(&floatNumber, "float-number", "", "")
 			flags.Duration(&duration, "duration", "", "")
 
 			err := flags.Parse(f.args)
@@ -136,6 +143,7 @@ func TestParse(t *testing.T) {
 			assert.Equal(t, f.car, car)
 			assert.Equal(t, f.count, count)
 			assert.Equal(t, f.number, number)
+			assert.Equal(t, f.floatNumber, floatNumber)
 			assert.Equal(t, f.duration, duration)
 		})
 	}
@@ -188,6 +196,7 @@ func TestParseStruct(t *testing.T) {
 		Yell     bool          `flaq:"    --yell                whether to yell or not"`
 		Bool     bool          `flaq:"    --bool bool           whether to bool or not"`
 		Int      int           `flaq:"    --int int             whether to int or not"`
+		Float64  float64       `flaq:"    --float64 float64     whether to float64 or not"`
 		Count    int           `flaq:"-c, --count count         whether to count or not"`
 		Duration time.Duration `flaq:"    --duration duration   whether to duration or not"`
 
@@ -202,6 +211,7 @@ func TestParseStruct(t *testing.T) {
 		"--yell",
 		"--bool=true",
 		"--duration=3s",
+		"--float64=3.14",
 		"--int=100",
 		"-ccc",
 	})
@@ -213,6 +223,7 @@ func TestParseStruct(t *testing.T) {
 	require.Equal(t, 3*time.Second, opts.Duration)
 	require.Equal(t, 100, opts.Int)
 	require.Equal(t, 3, opts.Count)
+	require.Equal(t, 3.14, opts.Float64)
 }
 
 func TestParseStructFieldTag(t *testing.T) {

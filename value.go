@@ -51,3 +51,11 @@ func (d *durationValue) Set(val string) error {
 	*d = durationValue(v)
 	return err
 }
+
+type float64Value float64
+
+func (f *float64Value) Set(val string) error {
+	v, err := strconv.ParseFloat(val, 64)
+	*f = float64Value(v)
+	return err
+}
