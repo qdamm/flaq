@@ -114,7 +114,6 @@ Struct fields tags are expected to follow the `-s, --long type  description` pat
 - `-s` is the option shortand.
 - `--long` is the option long form.
 - `type` is the type of argument the option accepts, if any.
-    It can be one of the following: `string`, `bool`, `int`, `count`, or `duration`.
 - `description` is the option description.
 
 In order to ease alignment for readability, there can be an arbitrary number of whitespaces
